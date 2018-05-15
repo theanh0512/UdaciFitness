@@ -23,6 +23,7 @@
   "dependencies": {
     "expo": "^27.0.1",
     "react": "16.3.2",
-    "react-native": "~0.55.2"
+    "react-native": "~0.55.2",
+    "@expo/vector-icons": "latest"
   }
 }
