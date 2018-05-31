@@ -6,12 +6,14 @@ import reducer from "./reducers";
 import History from "./components/History";
 import {
   createBottomTabNavigator,
-  createMaterialTopTabNavigator
+  createMaterialTopTabNavigator,
+  createStackNavigator
 } from "react-navigation";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
 import AddEntry from "./components/AddEntry";
 import { purple, white } from "./utils/colors";
 import { Constants } from "expo";
+import EntryDetail from "./components/EntryDetail";
 
 function UdaciStatusBar({ backgroundColor, ...props }) {
   return (
@@ -66,13 +68,31 @@ const Tabs =
     ? createBottomTabNavigator(tabsInitialization, tabOptions)
     : createMaterialTopTabNavigator(tabsInitialization, tabOptions);
 
+const MainNavigator = createStackNavigator({
+  Home: {
+    screen: Tabs,
+    navigationOptions: {
+      header: null
+    }
+  },
+  EntryDetail: {
+    screen: EntryDetail,
+    navigationOptions: {
+      headerTintColor: white,
+      headerStyle: {
+        backgroundColor: purple
+      }
+    }
+  }
+});
+
 export default class App extends React.Component {
   render() {
     return (
       <Provider store={createStore(reducer)}>
         <View style={{ flex: 1 }}>
           <UdaciStatusBar backgroundColor={purple} barStyle="light-content" />
-          <Tabs />
+          <MainNavigator />
         </View>
       </Provider>
     );
