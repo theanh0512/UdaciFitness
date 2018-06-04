@@ -14,10 +14,9 @@ import { calculateDirection } from "../utils/helpers";
 export default class Live extends Component {
   state = {
     coords: null,
-    status: "null",
+    status: "undetermined",
     direction: ""
   };
-
   componentDidMount() {
     Permissions.getAsync(Permissions.LOCATION)
       .then(({ status }) => {
@@ -33,8 +32,19 @@ export default class Live extends Component {
         this.setState(() => ({ status: "undetermined" }));
       });
   }
+  askPermission = () => {
+    Permissions.askAsync(Permissions.LOCATION)
+      .then(({ status }) => {
+        if (status === "granted") {
+          return this.setLocation();
+        }
 
-  askPermission = () => {};
+        this.setState(() => ({ status }));
+      })
+      .catch(error =>
+        console.warn("error asking Location permission: ", error)
+      );
+  };
   setLocation = () => {
     Location.watchPositionAsync(
       {
@@ -54,7 +64,6 @@ export default class Live extends Component {
       }
     );
   };
-
   render() {
     const { status, coords, direction } = this.state;
 
@@ -70,6 +79,9 @@ export default class Live extends Component {
             You denied your location. You can fix this by visiting your settings
             and enabling location services for this app.
           </Text>
+          <TouchableOpacity style={styles.button} onPress={this.askPermission}>
+            <Text style={styles.buttonText}>Enable</Text>
+          </TouchableOpacity>
         </View>
       );
     }
@@ -90,16 +102,20 @@ export default class Live extends Component {
       <View style={styles.container}>
         <View style={styles.directionContainer}>
           <Text style={styles.header}>You're heading</Text>
-          <Text style={styles.direction}>North</Text>
+          <Text style={styles.direction}>{direction}</Text>
         </View>
         <View style={styles.metricContainer}>
           <View style={styles.metric}>
             <Text style={[styles.header, { color: white }]}>Altitude</Text>
-            <Text style={[styles.subHeader, { color: white }]}>{200} feet</Text>
+            <Text style={[styles.subHeader, { color: white }]}>
+              {coords && Math.round(coords.altitude * 3.2808)} feet
+            </Text>
           </View>
           <View style={styles.metric}>
             <Text style={[styles.header, { color: white }]}>Speed</Text>
-            <Text style={[styles.subHeader, { color: white }]}>{300} MPH</Text>
+            <Text style={[styles.subHeader, { color: white }]}>
+              {coords && (coords.speed * 2.2369).toFixed(1)} MPH
+            </Text>
           </View>
         </View>
       </View>
